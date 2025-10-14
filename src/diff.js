@@ -18,6 +18,10 @@ export type DiffCreatorParams = {
 export type DiffResult = {
   image: string;
   passed: boolean;
+  width?: number;
+  height?: number;
+  diffCount?: number;
+  diffPercentage?: number;
 }
 
 const getMD5 = (file) => new Promise((resolve, reject) => {
@@ -67,8 +71,10 @@ const createDiff = ({
     })
       .then(({ width, height, diffCount }) => {
         const passed = isPassed({ width, height, diffCount, thresholdPixel, thresholdRate });
+        const totalPixels = width * height;
+        const diffPercentage = totalPixels > 0 ? (diffCount / totalPixels) * 100 : 0;
         if (!process || !process.send) return;
-        process.send({ passed, image });
+        process.send({ passed, image, width, height, diffCount, diffPercentage });
       })
   })
 };

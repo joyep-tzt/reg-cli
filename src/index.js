@@ -18,6 +18,10 @@ import { findImages } from './image-finder';
 type CompareResult = {
   passed: boolean,
   image: string,
+  width?: number,
+  height?: number,
+  diffCount?: number,
+  diffPercentage?: number,
 };
 
 type RegParams = {
@@ -126,9 +130,23 @@ const escapeGlob = fileName => {
 
 const aggregate = result => {
   const passed = result.filter(r => r.passed).map(r => r.image);
-  const failed = result.filter(r => !r.passed).map(r => r.image);
-  const diffItems = failed.map(image => image.replace(/\.[^\.]+$/, '.png'));
-  return { passed, failed, diffItems };
+  const failed = result.filter(r => !r.passed);
+  const failedItems = failed.map(r => r.image);
+  const diffItems = failedItems.map(image => image.replace(/\.[^\.]+$/, '.png'));
+  // Create a map of image names to their diff details for failed items
+  const diffDetails = {};
+  failed.forEach(r => {
+    const imageName = r.image;
+    if (r.width !== undefined && r.height !== undefined) {
+      diffDetails[imageName] = {
+        width: r.width,
+        height: r.height,
+        diffCount: r.diffCount,
+        diffPercentage: r.diffPercentage
+      };
+    }
+  });
+  return { passed, failed: failedItems, diffItems, diffDetails };
 };
 
 const updateExpected = ({ actualDir, expectedDir, diffDir, deletedImages, newImages, diffItems }) => {
@@ -184,7 +202,7 @@ module.exports = (params: RegParams) => {
     enableAntialias: !!enableAntialias,
   })
     .then(result => aggregate(result))
-    .then(({ passed, failed, diffItems }) => {
+    .then(({ passed, failed, diffItems, diffDetails }) => {
       return createReport({
         passedItems: passed,
         failedItems: failed,
@@ -193,6 +211,7 @@ module.exports = (params: RegParams) => {
         expectedItems: update ? actualImages : expectedImages,
         actualItems: actualImages,
         diffItems,
+        diffDetails,
         json: json || './reg.json',
         actualDir,
         expectedDir,

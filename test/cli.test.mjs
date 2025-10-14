@@ -14,8 +14,12 @@ const SAMPLE_DIFF_IMAGE = 'sample(cal).png';
 
 const replaceReportPath = report => {
   Object.keys(report).forEach(key => {
-    report[key] =
-      typeof report[key] === 'string' ? report[key].replace(/\\/g, '/') : report[key].map(r => r.replace(/\\/g, '/'));
+    if (typeof report[key] === 'string') {
+      report[key] = report[key].replace(/\\/g, '/');
+    } else if (Array.isArray(report[key])) {
+      report[key] = report[key].map(r => r.replace(/\\/g, '/'));
+    }
+    // Skip non-string, non-array values like diffDetails object
   });
   return report;
 };
@@ -46,7 +50,7 @@ test.serial('should display default diff message', async t => {
   t.true(stdout.indexOf('Inspect your code changes, re-run with `-U` to update them') !== -1);
 });
 
-test.serial.only('should display custom diff message', async t => {
+test.serial('should display custom diff message', async t => {
   const stdout = await new Promise(async resolve => {
     const chunks = [];
     rimraf(`${WORKSPACE}/resource/expected`, () => {
@@ -299,6 +303,14 @@ test.serial('should generate fail report', async t => {
       expectedDir: `./${WORKSPACE}/resource/expected`,
       diffDir: `./${WORKSPACE}/diff`,
     };
+    // Check diffDetails separately since the values can vary
+    t.truthy(report.diffDetails, 'diffDetails should exist');
+    t.truthy(report.diffDetails[SAMPLE_IMAGE], 'diffDetails should contain failed image');
+    t.is(typeof report.diffDetails[SAMPLE_IMAGE].diffPercentage, 'number', 'diffPercentage should be a number');
+    t.true(report.diffDetails[SAMPLE_IMAGE].diffPercentage > 0, 'diffPercentage should be greater than 0');
+    
+    // Remove diffDetails for deep equality check
+    delete report.diffDetails;
     t.deepEqual(report, expected);
   } catch (e) {
     t.fail();
@@ -332,6 +344,10 @@ test.serial('should generate fail report with -T 0.00', async t => {
       expectedDir: `./${WORKSPACE}/resource/expected`,
       diffDir: `./${WORKSPACE}/diff`,
     };
+    // Check diffDetails separately
+    t.truthy(report.diffDetails, 'diffDetails should exist');
+    t.truthy(report.diffDetails[SAMPLE_IMAGE], 'diffDetails should contain failed image');
+    delete report.diffDetails;
     t.deepEqual(report, expected);
   } catch (e) {
     t.fail();
@@ -398,6 +414,10 @@ test.serial('should generate fail report with -S 0', async t => {
       expectedDir: `./${WORKSPACE}/resource/expected`,
       diffDir: `./${WORKSPACE}/diff`,
     };
+    // Check diffDetails separately
+    t.truthy(report.diffDetails, 'diffDetails should exist');
+    t.truthy(report.diffDetails[SAMPLE_IMAGE], 'diffDetails should contain failed image');
+    delete report.diffDetails;
     t.deepEqual(report, expected);
   } catch (e) {
     t.fail();
@@ -463,6 +483,10 @@ test.serial('should update images with `-U` option', async t => {
     expectedDir: `./${WORKSPACE}/resource/expected`,
     diffDir: `./${WORKSPACE}/diff`,
   };
+  // Check diffDetails separately
+  t.truthy(report.diffDetails, 'diffDetails should exist');
+  t.truthy(report.diffDetails[SAMPLE_IMAGE], 'diffDetails should contain failed image');
+  delete report.diffDetails;
   t.deepEqual(report, expected);
 });
 

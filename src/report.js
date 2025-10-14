@@ -17,6 +17,7 @@ export type ReportParams = {
   expectedItems: string[],
   actualItems: string[],
   diffItems: string[],
+  diffDetails?: { [key: string]: { width: number, height: number, diffCount: number, diffPercentage: number } },
   json: string,
   actualDir: string,
   expectedDir: string,
@@ -43,7 +44,7 @@ const encodeFilePath = filePath => {
 };
 
 const createJSONReport = params => {
-  return {
+  const report = {
     failedItems: params.failedItems,
     newItems: params.newItems,
     deletedItems: params.deletedItems,
@@ -55,6 +56,13 @@ const createJSONReport = params => {
     expectedDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.expectedDir)}`,
     diffDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.diffDir)}`,
   };
+  
+  // Add diff details if available and not empty
+  if (params.diffDetails && Object.keys(params.diffDetails).length > 0) {
+    report.diffDetails = params.diffDetails;
+  }
+  
+  return report;
 };
 
 const createHTMLReport = params => {
@@ -71,7 +79,14 @@ const createHTMLReport = params => {
     hasPassed: params.passedItems.length > 0,
     passedItems: params.passedItems.map(item => ({ raw: item, encoded: encodeFilePath(item) })),
     hasFailed: params.failedItems.length > 0,
-    failedItems: params.failedItems.map(item => ({ raw: item, encoded: encodeFilePath(item) })),
+    failedItems: params.failedItems.map(item => {
+      const itemData = { raw: item, encoded: encodeFilePath(item) };
+      // Add diff percentage if available
+      if (params.diffDetails && params.diffDetails[item]) {
+        itemData.diffPercentage = params.diffDetails[item].diffPercentage;
+      }
+      return itemData;
+    }),
     actualDir: params.fromJSON
       ? params.actualDir
       : `${params.urlPrefix}${path.relative(path.dirname(params.report), params.actualDir)}`,
