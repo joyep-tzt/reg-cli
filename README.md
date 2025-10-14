@@ -80,9 +80,14 @@ reg-cli.js -F ./sample/reg.json -R ./sample/index.html"
     "diffItems":["sample.png"],
     "actualDir":"./actual",
     "expectedDir":"./expected",
-    "diffDir":"./diff"
+    "diffDir":"./diff",
+    "diffPercentages": {
+        "sample.png": 1.23
+    }
 }
 ```
+
+The `diffPercentages` field contains a map of image names to their percentage difference values. The percentage represents the ratio of different pixels to total pixels, multiplied by 100. Images with 0% difference are identical, while higher percentages indicate more significant differences.
 
 ## Test
 
