@@ -17,6 +17,7 @@ export type ReportParams = {
   expectedItems: string[],
   actualItems: string[],
   diffItems: string[],
+  diffPercentages?: { [key: string]: number },
   json: string,
   actualDir: string,
   expectedDir: string,
@@ -43,7 +44,7 @@ const encodeFilePath = filePath => {
 };
 
 const createJSONReport = params => {
-  return {
+  const report = {
     failedItems: params.failedItems,
     newItems: params.newItems,
     deletedItems: params.deletedItems,
@@ -55,6 +56,13 @@ const createJSONReport = params => {
     expectedDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.expectedDir)}`,
     diffDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.diffDir)}`,
   };
+  
+  // Add diffPercentages if available
+  if (params.diffPercentages) {
+    report.diffPercentages = params.diffPercentages;
+  }
+  
+  return report;
 };
 
 const createHTMLReport = params => {
@@ -81,6 +89,7 @@ const createHTMLReport = params => {
     diffDir: params.fromJSON
       ? params.diffDir
       : `${params.urlPrefix}${path.relative(path.dirname(params.report), params.diffDir)}`,
+    diffPercentages: params.diffPercentages || {},
     ximgdiffConfig: {
       enabled: params.enableClientAdditionalDetection,
       workerUrl: `${params.urlPrefix}worker.js`,

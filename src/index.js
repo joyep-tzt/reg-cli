@@ -18,6 +18,7 @@ import { findImages } from './image-finder';
 type CompareResult = {
   passed: boolean,
   image: string,
+  diffPercentage?: number,
 };
 
 type RegParams = {
@@ -128,7 +129,16 @@ const aggregate = result => {
   const passed = result.filter(r => r.passed).map(r => r.image);
   const failed = result.filter(r => !r.passed).map(r => r.image);
   const diffItems = failed.map(image => image.replace(/\.[^\.]+$/, '.png'));
-  return { passed, failed, diffItems };
+  
+  // Create a map of image name to diff percentage
+  const diffPercentages = {};
+  result.forEach(r => {
+    if (r.diffPercentage !== undefined) {
+      diffPercentages[r.image] = r.diffPercentage;
+    }
+  });
+  
+  return { passed, failed, diffItems, diffPercentages };
 };
 
 const updateExpected = ({ actualDir, expectedDir, diffDir, deletedImages, newImages, diffItems }) => {
@@ -184,7 +194,7 @@ module.exports = (params: RegParams) => {
     enableAntialias: !!enableAntialias,
   })
     .then(result => aggregate(result))
-    .then(({ passed, failed, diffItems }) => {
+    .then(({ passed, failed, diffItems, diffPercentages }) => {
       return createReport({
         passedItems: passed,
         failedItems: failed,
@@ -193,6 +203,7 @@ module.exports = (params: RegParams) => {
         expectedItems: update ? actualImages : expectedImages,
         actualItems: actualImages,
         diffItems,
+        diffPercentages,
         json: json || './reg.json',
         actualDir,
         expectedDir,
