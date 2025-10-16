@@ -92,7 +92,9 @@
     "serve-static": "1.16.2"
   },
   "files": [
+    "src",
     "dist",
+    ".babelrc",
     "template",
     "report/assets/favicon_failure.png",
     "report/assets/favicon_success.png",
