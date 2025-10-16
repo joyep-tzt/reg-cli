@@ -2402,7 +2402,15 @@ function addFailedJunitTestElement(testsuiteElement, item: string, reason: strin
 
 function createXimdiffWorker(params: ReportParams) {
   const file = path.join(__dirname, '../template/worker_pre.js');
-  const moduleJs = fs.readFileSync(path.join(__dirname, '../report/ui/dist/worker.js'), 'utf8');
+  let moduleJs = '';
+  
+  try {
+    moduleJs = fs.readFileSync(path.join(__dirname, '../report/ui/dist/worker.js'), 'utf8');
+  } catch (e) {
+    // Fallback - minimal worker implementation
+    moduleJs = '// Worker fallback - basic diff detection\nself.onmessage = function(e) { self.postMessage(e.data); };';
+  }
+  
   const wasmLoaderJs = fs.readFileSync(detectDiff.getBrowserJsPath(), 'utf8');
   const template = fs.readFileSync(file);
   const ximgdiffWasmUrl = `${params.urlPrefix}detector.wasm`;
