@@ -1,6 +1,6 @@
 {
-  "name": "reg-cli",
-  "version": "0.18.10",
+  "name": "@joyep-tzt/reg-cli",
+  "version": "0.18.11",
   "description": "",
   "main": "./dist/index.js",
   "start": "node ./dist/cli.js",
@@ -24,11 +24,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/reg-viz/reg-cli/"
+    "url": "https://github.com/joyep-tzt/reg-cli/"
   },
-	"ava": {
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "ava": {
     "workerThreads": false
-	},
+  },
   "author": "bokuweb",
   "license": "MIT",
   "resolutions": {
