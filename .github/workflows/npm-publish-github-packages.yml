@@ -9,12 +9,12 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@master
         with:
-          node-version: 18
+          node-version: 22
       - name: yarn
         run: yarn --frozen-lockfile
       - name: flow
@@ -26,8 +26,7 @@ jobs:
 
   publish:
     needs: test
-    runs-on: ubuntu-20.04
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
