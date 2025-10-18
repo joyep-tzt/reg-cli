@@ -2273,12 +2273,8 @@ const createJSONReport = params => {
     actualDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.actualDir)}`,
     expectedDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.expectedDir)}`,
     diffDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.diffDir)}`,
+    diffDetails: params.diffDetails,
   };
-  
-  // Add diffDetails if available
-  if (params.diffDetails) {
-    report.diffDetails = params.diffDetails;
-  }
   
   return report;
 };

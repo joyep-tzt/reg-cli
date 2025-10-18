@@ -449,11 +449,8 @@ const createJSONReport = params => {
     actualDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.actualDir)}`,
     expectedDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.expectedDir)}`,
     diffDir: `${params.urlPrefix}${path.relative(path.dirname(params.json), params.diffDir)}`,
+    diffDetails: params.diffDetails,
   };
-  
-  if (params.diffDetails) {
-    report.diffDetails = params.diffDetails;
-  }
   
   return report;
 };
@@ -518,7 +515,7 @@ const createHTMLReport = params => {
 };
 
 const createJunitReport = params => {
-  const builder = require('xmlbuilder');
+  const builder = require('xmlbuilder2');
   const testsuiteElement = builder
     .create('testsuites')
     .att('name', 'reg')

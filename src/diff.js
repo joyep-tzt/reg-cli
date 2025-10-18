@@ -83,7 +83,7 @@ const createDiff = ({
         const totalPixels = width * height;
         const diffPercentage = totalPixels > 0 ? (diffCount / totalPixels) * 100 : 0;
         
-        if (debug) console.log(`[DIFF] Result - passed: ${passed}, diffPercentage: ${diffPercentage.toFixed(2)}%`);
+        if (debug) console.log(`[DIFF] Result - passed: ${String(passed)}, diffPercentage: ${diffPercentage.toFixed(2)}%`);
         
         if (!process || !process.send) return;
         process.send({ 
