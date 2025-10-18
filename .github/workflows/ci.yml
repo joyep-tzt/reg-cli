@@ -8,13 +8,13 @@ on:
   pull_request:
 
 jobs:
-  test:
-    runs-on: ubuntu-20.04
+  build:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
       - uses: actions/setup-node@master
         with:
-          node-version: 18
+          node-version: 20
       - name: yarn
         run: yarn --frozen-lockfile
       - name: flow
@@ -24,10 +24,9 @@ jobs:
       - name: build
         run: yarn run build
 
-  publish:
-    needs: test
-    runs-on: ubuntu-20.04
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -35,8 +34,8 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-node@master
         with:
-          node-version: 18
-          registry-url: 'https://npm.pkg.github.com'
+          node-version: 20
+          registry-url: https://npm.pkg.github.com
           scope: '@joyep-tzt'
       - name: yarn
         run: yarn --frozen-lockfile
