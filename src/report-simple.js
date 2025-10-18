@@ -464,7 +464,7 @@ const createHTMLReport = params => {
     
     return items.map(item => {
       const encoded = encodeFilePath(item);
-      const details = params.diffDetails[item];
+      const details = params.diffDetails ? params.diffDetails[item] : undefined;
       
       if (details) {
         return {
